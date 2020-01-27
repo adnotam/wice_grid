@@ -375,8 +375,8 @@ module Wice
         relation = @relation
                        .includes(@ar_options[:include])
                        .joins(@ar_options[:joins])
-                       .group(@ar_options[:group])
                        .merge(@ar_options[:conditions])
+        relation = relation.group(@ar_options[:group]) if @ar_options[:group].present?
         relation = add_references relation
         relation = apply_sort_by relation
 
@@ -595,7 +595,7 @@ module Wice
         end
       end
 
-      return custom_order if custom_order.nil? || custom_order.is_a?(Arel::Attributes::Attribute)
+      return custom_order if custom_order.nil? || custom_order.is_a?(Arel::Attributes::Attribute) || custom_order.is_a?(Arel::Nodes::SqlLiteral)
       return custom_order.gsub(/\?/, fully_qualified_column_name) if custom_order.is_a?(String)
       return custom_order.call(fully_qualified_column_name) if custom_order.is_a?(Proc)
       raise WiceGridArgumentError.new("invalid custom order #{custom_order.inspect}")
