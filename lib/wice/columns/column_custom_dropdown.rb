@@ -84,7 +84,7 @@ module Wice
         opts = (opts.is_a?(Array) && opts.size == 1) ? opts[0] : opts
 
         column_name =
-            "#{@column_wrapper.alias_or_table_name(table_alias)}.#{@column_wrapper.name}"
+            "#{@column_wrapper.alias_or_table_name(table_alias)}.\"#{@column_wrapper.name}\""
         if opts.is_a?(Array)
           opts_with_special_values, normal_opts = opts.partition { |v| ::Wice::GridTools.special_value(v) }
 
