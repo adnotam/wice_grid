@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
-  s.version       = '7.1.4'
-  s.authors       = ['Yuri Leikind, Dimitri Kulk, and contributors']
-  s.email         = ['dim.kulk@gmail.com']
-  s.homepage      = 'https://github.com/leikind/wice_grid'
+  s.version       = '8.0.0'
+  s.authors       = ['Yuri Leikind and contributors']
+  s.email         = ['afdev82@gmail.com']
+  s.homepage      = 'https://github.com/adnotam/wice_grid'
   s.summary       = 'A Rails grid plugin to quickly create grids with sorting, pagination, and filters.'
   s.description   = 'A Rails grid plugin to create grids with sorting, pagination, and filters generated automatically based on column types. ' \
     'The contents of the cell are up for the developer, just like one does when rendering a collection via a simple table. ' \
@@ -17,8 +17,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails', '~> 8.0'
   s.add_dependency 'kaminari'
-  s.add_dependency 'coffee-rails', '>= 5.0.0'
-  s.add_dependency 'jquery-rails'
 
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'byebug'

@@ -1,18 +1,27 @@
 {
   "name": "wice-grid",
-  "version": "4.1.0",
+  "version": "8.0.0",
   "description": "WiceGrid is a Rails grid plugin",
   "main": "vendor/assets/javascripts/wice_grid.js",
   "repository": {
     "type": "git",
     "url": "/home/dima/devel/github/wice_grid"
   },
-  "author": "Dmitry Kulikov",
+  "author": "Leikind Yuri and contributors",
   "license": "MIT",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "sass ./app/assets/stylesheets:./vendor/assets/stylesheets --no-source-map --load-path=./node_modules",
+    "build:js": "node build.mjs",
+    "build": "yarn run build:css && yarn run build:js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11",
+    "esbuild-coffeescript": "^3.0.1",
+    "font-awesome": "^4.7.0",
+    "jquery-ui": "^1.14.1"
   }
 }

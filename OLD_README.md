@@ -1,92 +1,57 @@
-[![Version](http://img.shields.io/gem/v/wice_grid.svg)](https://rubygems.org/gems/wice_grid)
-[![CircleCI](https://circleci.com/gh/leikind/wice_grid.svg?style=svg)](https://circleci.com/gh/adnotam/wice_grid)
-[![Inline docs](http://inch-ci.org/github/leikind/wice_grid.svg)](http://inch-ci.org/github/adnotam/wice_grid)
-[![License](http://img.shields.io/badge/license-MIT-yellowgreen.svg)](#license)
-
-# WiceGrid
-
-- [Intro](#intro)
-- [Requirements and Rails versions](#requirements-and-rails-versions)
-- [Installation](#installation)
-- [Basics](#basics)
-  - [Rendering filter panel](#rendering-filter-panel)
-  - [Initial Ordering](#initial-ordering)
-  - [Records Per Page](#records-per-page)
-  - [Conditions](#conditions)
-  - [Queries with join tables](#queries-with-join-tables)
-  - [Joined associations referring to the same table](#joined-associations-referring-to-the-same-table)
-  - [More than one grid on a page](#more-than-one_grid-on-a-page)
-  - [Custom Ordering](#custom-ordering)
-  - [Custom Sorting](#custom-sorting)
-- [Filters](#filters)
-  - [Custom dropdown filters](#custom-dropdown-filters)
-  - [Numeric Filters](#numeric-filters)
-  - [Date and DateTime Filters](#date-and-datetime-filters)
-  - [Detached Filters](#detached-filters)
-- [Defaults](#defaults)
-- [Testing](#testing)
-- [Bug reports](#bug-reports)
-
-
-## Intro
-
-WiceGrid is a Rails grid plugin.
-
-One of the goals of this plugin was to allow the programmer to define the contents of the cell on their
-own, just like one does when rendering a collection via a simple table (and this is what differentiates
-WiceGrid from various scaffolding solutions), but automate implementation of filters, ordering,
-paginations, CSV export, and so on. Ruby blocks provide an elegant means for this.
-
-
-WiceGrid builds the call to the ActiveRecord layer for you and creates a table view with the results
-of the call including:
-
-* Pagination
-* Sortable columns
-* Filtering by multiple columns
-* Export to CSV
-* Saved queries
-
-Filters are added automatically according to the type of the underlying DB column. Filtering by more
-than one column at the same time is possible. More than one such grid can appear on a page, and
-manipulations with one grid do not have any impact on others.
-
-WiceGrid does not take a collection as an input, it works directly with ActiveRecord.
-
-WiceGrid does not use XHR calls to reload itself, instead simple GET requests are used for this,
-nevertheless, all other page parameters are respected and preserved. WiceGrid works well with Turbolinks.
-
-WiceGrid views do not contain forms so you can include it in your own forms.
-
-WiceGrid is known to work with MySQL, Postgres, and Oracle.
-
-Continue reading for more information or check out our [CHANGELOG](https://github.com/adnotam/wice_grid/blob/custom/CHANGELOG.md) to find out whats been going on.
-
 ## Requirements and Rails versions
 
 ```
-# Rails 8
-gem 'wice_grid', github: 'adnotam/wice_grid', branch: 'custom'
+# Rails 7 with importmap, HotWire, and dartsass-rails
+gem 'wice_grid', '~> 7.1'
+
+# Rails 5, 6, and 7.0 without importmap (see below)
+gem 'wice_grid', '~> 6.1'
+
+# Rails 4
+gem 'wice_grid', '3.6.2'
 ```
 
-# Rails prior to 8
-Read the [old README section](OLD_README.md#requirements-and-rails-versions) for legacy Rails compatibility.
+WiceGrid relies on jQuery and coffeescript and the dependencies are added to the gem specification.
 
-# WiceGrid 8.0.0
-WiceGrid doesn't require jQuery or any dependency to build the JS assets anymore, you have to include jquery before the wice_grid JS
-with your own preferred method.
-The assets are precompiled by the gem and they are found in vendor/assets/javascripts folder to be included by the asset pipeline.
-Just include the `wice_grid.js` in the view that renders the table with:
+If you need a JS Datepicker, WiceGrid supports jQuery Datepicker or
+Bootstrap Datepicker, so you might need one of those. See the section "Installation"
+for details on how to use datepickers.
 
-```
-javascript_include_tag 'wice_grid'
-```
+## Installation
+
+Here is described the case when the gems `importmap` and `dartsass-rails` are in use.
+For the case of `sass-rails` and other JavaScript approach see the
+branch [rails6](https://github.com/leikind/wice_grid/tree/rails6).
 
 Add the following lines to your `Gemfile`:
 
 ```ruby
 gem "wice_grid"
+gem 'font-awesome-sass', github: 'dima4p/font-awesome-sass'
 ```
+
+The current version of the gem `font-awesome-sass` has a
+[bug](https://github.com/FortAwesome/font-awesome-sass/issues/222).
+As soon as it is fixed, you can use the standard version.
+
+If the application uses Date and DateTime filters, you have to use
+jQuery Datepicker from the gem `jquery-ui-rails`.
+
+```ruby
+gem 'jquery-ui-rails', github: 'dima4p/jquery-ui-rails'
+```
+
+The regular version of the gem also have an
+[incompatibility](https://github.com/jquery-ui-rails/jquery-ui-rails/pull/153) with
+`dartsass-rails` that is fixed in the custom version. I hope it will be fixed too.
+
+Alternatively you can also use Bootstrap Datepicker.
+
+```ruby
+gem 'bootstrap'
+```
+
+Note: `font-awesome-sass` is not a dependency of WiceGrid in case you decide to style WiceGrid icons differently. But if you use it it must be the version that is compatible with `dartsass-rails`. As well as the gem `jquery-ui-rails`.
 
 Then run `bundle install`.
 
@@ -103,23 +68,70 @@ You have to edit it if required in order to define which kind of the Datepicker
 to use changing the value for `DEFAULT_FILTER_FOR_DATE` and
 `DEFAULT_FILTER_FOR_DATETIME`.
 
-If you use the jQuery Datepicker you need to include jQuery-UI as dependency in your application, using the method that you prefer.
-If you are going to use `bootstrap` add the Bootstrap framework.
-If the application uses Date and DateTime filters, you have to use one of jQuery Datepicker, Bootstrap Datepicker or the standard Rails date helper.
+In the file `config/importmap.rb` add the following lines:
+
+```ruby
+pin "jquery", to: "jquery3.min.js", preload: true
+pin "wice_grid", to: "wice_grid.js", preload: true
+pin "jquery-ui", to: "jquery-ui.js", preload: true
+```
+
+You do not need the last line if you do not use jQuery Datepicker.
+
+If you are going to use `bootstrap` add also the lines:
+
+```ruby
+pin "bootstrap", to: "bootstrap.min.js", preload: true
+pin "@popperjs/core", to: "popper.js", preload: true
+```
+
+In the file `app/assets/config/manifest.js` add the following lines:
+
+```
+//= link wice_grid.js
+//= link jquery3.min.js
+//= link jquery-ui.js
+//= link bootstrap.min.js
+//= link popper.js
+```
+
+The last two lines are required if you use `bootstrap`. And the middle is not needed if you do not use jQuery Datepicker.
+
+If the application uses Date and DateTime filters, you have to use one of
+jQuery Datepicker, Bootstrap Datepicker or the standard Rails date helper.
+
+Here is an example of `app/javascript/application.js` if jQuery Datepicker is used:
+
+```javascript
+import "jquery" // this import first
+import "jquery-ui"
+import "wice_grid"
+```
+
+Here is `app/javascript/application.js` if Bootstrap Datepicker is used:
+
+```javascript
+import "jquery" // this import first
+import "bootstrap"
+import "wice_grid"
+```
 
 Require WiceGrid and Font Awesome CSS in your `app/assets/stylesheets/application.scss`:
 
 ```scss
-@import "font-awesome";
 @import "wice_grid";
+@import "font-awesome";
 @import "bootstrap";
 ```
 
-This will provide very basic styles, not specifying exactly how the table should look like.
+This will provide very basic styles, not specifying exactly how the table should
+look like.
+
 WiceGrid uses icons from Font Awesome.
 Should you decide to write you own styles for WiceGrid, you can just remove these imports and write your own styles.
 
-If the application does not use Bootstrap you do not need the last line, but the markup generated by WiceGrid will have correct classes and will fit nicely if you include Bootstrap.
+If the application does not use Bootstrap you do not need the last line.
+But the markup generated by WiceGrid will have correct classes and will fit nicely if you include Bootstrap.
 
 ## Basics
 
@@ -402,9 +414,11 @@ include: [:category, :users, :status]
 
 If you need to join tables to joined tables, use hashes:
 
+
 ```ruby
 include: [:category, {users: :group}, :status]
 ```
+
 
 Note that if we want to order initially by a column from a joined table we have to specify the table and
 the column name with the sql dot notation, that is, `products.name`.
@@ -850,6 +864,8 @@ Specify a date/datetime filter just like you specify any other filter:
 Default filters are defined in configuration constants Wice::Defaults::DEFAULT_FILTER_FOR_DATE and
 Wice::Defaults::DEFAULT_FILTER_FOR_DATETIME.
 
+
+
 #### jQuery UI DatePicker `(HELPER_STYLE = :calendar)`
 
 By default WiceGrid uses jQuery UI datepicker[http://jqueryui.com/demos/datepicker/] for Date and DateTime
@@ -877,7 +893,7 @@ you can always change this range dynamically with the following javascript:
 $( ".hasDatepicker" ).datepicker( "option", "yearRange", "2000:2042" );
 ```
 
-#### Bootstrap DatePicker `(HELPER_STYLE = :bootstrap)`
+#### jQuery UI DatePicker `(HELPER_STYLE = :bootstrap)`
 
 WiceGrid also supports [Bootstrap Datepicker](https://github.com/Nerian/bootstrap-datepicker-rails).
 
@@ -933,9 +949,11 @@ Then, use `grid_filter(grid, :some_filter_name)` to render filters:
 
 Finally, use `render_grid(@grid)` to actually output the grid table.
 
+
 Using custom submit and reset buttons together with `hide_submit_button: true` and
 `hide_reset_button: true` allows to completely get rid of the default filter row and the default
 icons (see section 'Submit/Reset Buttons').
+
 
 If a column was declared with `:detach_with_id`, but never output with `grid_filter`, filtering
 the  grid in development mode will result in an warning javascript message and the missing filter will be
@@ -1515,4 +1533,4 @@ This repository contains a Rails application for testing purposes. To fire up th
 
 ## Bug reports
 
-If you discover a problem with Wicegrid, we would love to know about it. Please use the [GitHub issue tracker](https://github.com/adnotam/wice_grid/issues)
+If you discover a problem with Wicegrid, we would love to know about it. Please use the [GitHub issue tracker](https://github.com/leikind/wice_grid/issues)

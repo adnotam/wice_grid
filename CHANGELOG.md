@@ -1,3 +1,8 @@
+## 8.0.0
+
+* Allow Rails 8.0
+* Compile JS assets to support other asset pipelines
+
 ## 7.1.4
 
 * Allow Rails 7.0
