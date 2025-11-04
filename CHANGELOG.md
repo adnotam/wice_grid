@@ -1,3 +1,11 @@
+## 8.1.0
+
+* BREAKING CHANGE: change default date/datetime filters to standard rails date/datetime helpers
+
+## 8.0.1
+
+* Auto-reload for native datepicker on blur
+
 ## 8.0.0
 
 * Allow Rails 8.0
